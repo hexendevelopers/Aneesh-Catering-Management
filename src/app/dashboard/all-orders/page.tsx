@@ -486,15 +486,17 @@ export default function AllOrdersPage() {
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-6'>
         {/* Page Header */}
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+        <div className='flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 gap-4'>
           <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>{t('page.allOrders')}</h1>
-          <div className='flex items-center space-x-2'>
-            <Button onClick={fetchOrders} variant='outline' size='sm'>
+          <div className='flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2'>
+            <Button onClick={fetchOrders} variant='outline' size='sm' className='w-full sm:w-auto'>
               <IconRefresh className='h-4 w-4 mr-2' />
+              <span className='sm:hidden'>Refresh</span>
               <span className='hidden sm:inline'>{t('action.refresh')}</span>
             </Button>
-            <Button onClick={() => setIsExportDialogOpen(true)} variant='outline' size='sm'>
+            <Button onClick={() => setIsExportDialogOpen(true)} variant='outline' size='sm' className='w-full sm:w-auto'>
               <IconDownload className='h-4 w-4 mr-2' />
+              <span className='sm:hidden'>Export</span>
               <span className='hidden sm:inline'>{t('action.exportCSV')}</span>
             </Button>
           </div>
@@ -577,31 +579,31 @@ export default function AllOrdersPage() {
                 {filteredOrders.map((order) => {
                   const finalTotal = calculateFinalTotal(order.totalPayment, order.discount || '0');
                   return (
-                    <div key={order.orderId} className='border rounded-lg p-3 hover:bg-muted/50 transition-colors'>
-                      <div className='flex items-center justify-between'>
-                        {/* Order Info - Compact */}
+                    <div key={order.orderId} className='border rounded-lg p-3 sm:p-4 hover:bg-muted/50 transition-colors'>
+                      <div className='flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0'>
+                        {/* Order Info - Mobile Optimized */}
                         <div className='flex-1 min-w-0'>
-                          <div className='flex items-center gap-3'>
+                          <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:gap-3 sm:space-y-0'>
                             <div className='flex-1 min-w-0'>
-                              <div className='flex items-center gap-2'>
-                                <h3 className='font-semibold text-base truncate'>{order.name}</h3>
+                              <div className='flex flex-col space-y-1 sm:flex-row sm:items-center sm:gap-2 sm:space-y-0'>
+                                <h3 className='font-semibold text-sm sm:text-base truncate'>{order.name}</h3>
                                 <span className='text-xs text-muted-foreground'>#{order.receiptNo}</span>
                               </div>
-                              <p className='text-sm text-muted-foreground truncate mt-1'>
+                              <p className='text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1'>
                                 {order.orderDetails}
                               </p>
-                              <div className='flex items-center gap-3 mt-1 text-xs text-muted-foreground'>
-                                <span>📞 {order.phoneNumber}</span>
-                                <span>📅 {new Date(order.date).toLocaleDateString()}</span>
-                                <span>🕒 {order.time}</span>
+                              <div className='flex flex-wrap gap-2 sm:gap-3 mt-2 text-xs text-muted-foreground'>
+                                <span className='flex items-center'>📞 {order.phoneNumber}</span>
+                                <span className='flex items-center'>📅 {new Date(order.date).toLocaleDateString()}</span>
+                                <span className='flex items-center'>🕒 {order.time}</span>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        {/* Payment Info - Compact */}
-                        <div className='flex items-center gap-4 mr-2'>
-                          <div className='text-right'>
+                        {/* Payment Info & Status - Mobile Optimized */}
+                        <div className='flex items-center justify-between sm:gap-4'>
+                          <div className='text-left sm:text-right'>
                             <div className='text-sm font-medium'>{formatCurrency(finalTotal)}</div>
                             <div className='text-xs text-muted-foreground'>
                               {t('table.advancePaid')}: {formatCurrency(order.advancePayment)}
@@ -609,7 +611,7 @@ export default function AllOrdersPage() {
                           </div>
                           
                           {/* Status Badges */}
-                          <div className='flex flex-col gap-1'>
+                          <div className='flex flex-row gap-2 sm:flex-col sm:gap-1'>
                             <Badge 
                               variant={order.status === 'paid' ? 'default' : 'destructive'}
                               className='cursor-pointer text-xs'
@@ -630,12 +632,13 @@ export default function AllOrdersPage() {
                         </div>
 
                         {/* Actions Menu */}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' className='h-8 w-8 p-0'>
-                              <IconDotsVertical className='h-4 w-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
+                        <div className='flex-shrink-0 ml-2'>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant='ghost' className='h-8 w-8 p-0'>
+                                <IconDotsVertical className='h-4 w-4' />
+                              </Button>
+                            </DropdownMenuTrigger>
                           <DropdownMenuContent align='end'>
                             <DropdownMenuLabel>{t('table.actions')}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
@@ -706,6 +709,7 @@ export default function AllOrdersPage() {
                             </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        </div>
                       </div>
                     </div>
                   );

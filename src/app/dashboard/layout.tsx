@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/auth-guard';
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
@@ -21,19 +22,21 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     <LanguageProvider>
-      <KBar>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <AppSidebar />
-          <SidebarInset className="h-screen">
-            <Header />
-            {/* page main content */}
-            <div className="flex-1 overflow-auto">
-              {children}
-            </div>
-            {/* page main content ends */}
-          </SidebarInset>
-        </SidebarProvider>
-      </KBar>
+      <AuthGuard>
+        <KBar>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSidebar />
+            <SidebarInset className="h-screen">
+              <Header />
+              {/* page main content */}
+              <div className="flex-1 overflow-auto mobile-scroll">
+                {children}
+              </div>
+              {/* page main content ends */}
+            </SidebarInset>
+          </SidebarProvider>
+        </KBar>
+      </AuthGuard>
     </LanguageProvider>
   );
 }

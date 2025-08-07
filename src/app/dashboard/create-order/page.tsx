@@ -127,7 +127,7 @@ export default function CreateOrderPage() {
       <div className='flex flex-1 flex-col space-y-6'>
         {/* Page Header */}
         <div className='flex items-center justify-start'>
-          <h1 className='text-3xl font-bold tracking-tight'>
+          <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
             {t('page.createOrder')}
           </h1>
         </div>
@@ -150,7 +150,7 @@ export default function CreateOrderPage() {
                   <h3 className='text-lg font-medium border-b pb-2'>
                     {t('section.customerInformation')}
                   </h3>
-                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                  <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Name */}
                     <FormField
                       control={form.control}
@@ -219,7 +219,7 @@ export default function CreateOrderPage() {
                   <h3 className='text-lg font-medium border-b pb-2'>
                     {t('section.orderDetails')}
                   </h3>
-                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                  <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Receipt No */}
                     <FormField
                       control={form.control}
@@ -336,7 +336,7 @@ export default function CreateOrderPage() {
                   <h3 className='text-lg font-medium border-b pb-2'>
                     {t('section.paymentInformation')}
                   </h3>
-                  <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                  <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Total Payment */}
                     <FormField
                       control={form.control}
@@ -395,7 +395,7 @@ export default function CreateOrderPage() {
                           <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            className='flex flex-row space-x-8'
+                            className='flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-8'
                           >
                             <div className='flex items-center space-x-2'>
                               <RadioGroupItem value='cash' id='cash' />
@@ -425,7 +425,7 @@ export default function CreateOrderPage() {
 
                 {/* Action Button */}
                 <div className='flex justify-start pt-6'>
-                  <Button type='submit' disabled={isSubmitting}>
+                  <Button type='submit' disabled={isSubmitting} className='w-full sm:w-auto'>
                     {isSubmitting ? t('button.creating') : t('button.createOrder')}
                   </Button>
                 </div>

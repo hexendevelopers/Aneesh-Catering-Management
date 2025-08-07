@@ -26,28 +26,54 @@ import {
   IconLogout
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { isOpen } = useMediaQuery();
   const [userRole, setUserRole] = React.useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    // Get user role from localStorage
-    const authData = localStorage.getItem('auth_token');
-    if (authData) {
-      try {
-        const { role } = JSON.parse(authData);
-        setUserRole(role);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error parsing auth data:', error);
+    // Check authentication and get user role from localStorage
+    const checkAuth = () => {
+      const authData = localStorage.getItem('auth_token');
+      if (authData) {
+        try {
+          const { role, timestamp, isAuthenticated: authFlag } = JSON.parse(authData);
+          const now = new Date().getTime();
+          const expiryTime = timestamp + (30 * 24 * 60 * 60 * 1000); // 30 days
+          
+          if (now < expiryTime && authFlag) {
+            // User is still authenticated
+            setUserRole(role);
+            setIsAuthenticated(true);
+          } else {
+            // Token expired or invalid, remove it and redirect
+            localStorage.removeItem('auth_token');
+            document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            setIsAuthenticated(false);
+            router.push('/auth/sign-in');
+          }
+        } catch (error) {
+          // Invalid token format, remove it and redirect
+          localStorage.removeItem('auth_token');
+          document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          setIsAuthenticated(false);
+          router.push('/auth/sign-in');
+        }
+      } else {
+        // No auth token found, redirect to sign-in
+        setIsAuthenticated(false);
+        router.push('/auth/sign-in');
       }
-    }
-  }, []);
+    };
+
+    checkAuth();
+  }, [router]);
 
   // Get navigation items based on user role
   const navItems = getNavItems(userRole);
@@ -55,6 +81,11 @@ export default function AppSidebar() {
   React.useEffect(() => {
     // Side effects based on sidebar state changes
   }, [isOpen]);
+
+  // Show loading or nothing if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <Sidebar collapsible='icon'>

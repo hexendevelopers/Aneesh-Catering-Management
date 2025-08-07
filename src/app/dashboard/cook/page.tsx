@@ -100,11 +100,11 @@ export default function CookPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex-1 space-y-4 p-2 sm:p-4 md:p-8 pt-4 md:pt-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">{t('message.loading')}</p>
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-sm sm:text-base text-muted-foreground">{t('message.loading')}</p>
           </div>
         </div>
       </div>
@@ -112,19 +112,20 @@ export default function CookPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">{t('page.cook')}</h2>
+    <div className="flex-1 space-y-4 p-2 sm:p-4 md:p-8 pt-4 md:pt-6">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('page.cook')}</h2>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
             <IconRefresh className="mr-2 h-4 w-4" />
-            {t('action.refresh')}
+            <span className="hidden sm:inline">{t('action.refresh')}</span>
+            <span className="sm:hidden">Refresh</span>
           </Button>
         </div>
       </div>
 
       {/* Orders as Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {activeOrders.length === 0 ? (
           <div className="col-span-full text-center py-8">
             <IconChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -133,45 +134,47 @@ export default function CookPage() {
         ) : (
           activeOrders.map((order) => (
             <Card key={order.orderId} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{order.name}</CardTitle>
-                    <CardDescription>#{order.receiptNo}</CardDescription>
+              <CardHeader className="pb-3">
+                <div className="flex flex-col space-y-2 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-base sm:text-lg truncate">{order.name}</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">#{order.receiptNo}</CardDescription>
                   </div>
-                  {getStatusBadge(order.cookStatus || 'pending')}
+                  <div className="flex-shrink-0">
+                    {getStatusBadge(order.cookStatus || 'pending')}
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 pt-0">
                 {/* Order Details */}
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">{t('cook.orderDetails')}</p>
-                  <p className="text-sm bg-muted p-3 rounded border">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-2">{t('cook.orderDetails')}</p>
+                  <p className="text-xs sm:text-sm bg-muted p-2 sm:p-3 rounded border break-words">
                     {order.orderDetails || t('message.noOrderDetails')}
                   </p>
                 </div>
 
                 {/* Order Info */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('info.customer')}:</span>
-                    <span>{order.name || t('info.unknownCustomer')}</span>
+                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between items-start">
+                    <span className="text-muted-foreground flex-shrink-0 mr-2">{t('info.customer')}:</span>
+                    <span className="text-right truncate">{order.name || t('info.unknownCustomer')}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('info.date')}:</span>
-                    <span>{order.date || t('info.noDate')}</span>
+                  <div className="flex justify-between items-start">
+                    <span className="text-muted-foreground flex-shrink-0 mr-2">{t('info.date')}:</span>
+                    <span className="text-right">{order.date || t('info.noDate')}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('info.time')}:</span>
-                    <span>{order.time || t('info.noTime')}</span>
+                  <div className="flex justify-between items-start">
+                    <span className="text-muted-foreground flex-shrink-0 mr-2">{t('info.time')}:</span>
+                    <span className="text-right">{order.time || t('info.noTime')}</span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   {order.cookStatus === 'pending' && (
                     <Button 
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm py-2"
                       onClick={() => handleStatusUpdate(order.orderId!, 'preparing')}
                     >
                       {t('button.startPreparing')}
@@ -179,7 +182,7 @@ export default function CookPage() {
                   )}
                   {order.cookStatus === 'preparing' && (
                     <Button 
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm py-2"
                       onClick={() => handleStatusUpdate(order.orderId!, 'ready')}
                     >
                       {t('button.markReady')}
@@ -187,7 +190,7 @@ export default function CookPage() {
                   )}
                   {order.cookStatus === 'ready' && (
                     <Button 
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm py-2"
                       variant="outline"
                       onClick={() => handleStatusUpdate(order.orderId!, 'delivered')}
                     >

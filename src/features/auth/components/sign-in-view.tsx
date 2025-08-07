@@ -83,7 +83,7 @@ export default function SignInViewPage() {
       case 'financial':
         return '/dashboard/manager';
       default:
-        return '/dashboard/overview';
+        return '/auth/sign-in';
     }
   };
 

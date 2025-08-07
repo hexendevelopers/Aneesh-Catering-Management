@@ -10,8 +10,8 @@ import {
   SelectLabel,
   SelectSeparator,
   SelectTrigger,
-  SelectValue
 } from '@/components/ui/select';
+import { PaletteIcon } from 'lucide-react';
 
 const DEFAULT_THEMES = [
   {
@@ -54,22 +54,19 @@ export function ThemeSelector() {
   const { activeTheme, setActiveTheme } = useThemeConfig();
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center'>
       <Label htmlFor='theme-selector' className='sr-only'>
         Theme
       </Label>
       <Select value={activeTheme} onValueChange={setActiveTheme}>
         <SelectTrigger
           id='theme-selector'
-          className='justify-start *:data-[slot=select-value]:w-12'
+          className='w-9 h-9 p-0 border-0 hover:bg-accent hover:text-accent-foreground'
         >
-          <span className='text-muted-foreground hidden sm:block'>
-            Select a theme:
-          </span>
-          <span className='text-muted-foreground block sm:hidden'>Theme</span>
-          <SelectValue placeholder='Select a theme' />
+          <PaletteIcon className='h-4 w-4' />
+          <span className='sr-only'>Select theme</span>
         </SelectTrigger>
-        <SelectContent align='end'>
+        <SelectContent align='end' className='min-w-[160px]'>
           <SelectGroup>
             <SelectLabel>Default</SelectLabel>
             {DEFAULT_THEMES.map((theme) => (
