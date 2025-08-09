@@ -44,7 +44,7 @@ const translations = {
     'filter.showingResults': 'Showing {count} of {total} orders',
     
     // Cook Page
-    'page.cook': 'Cook',
+    'page.kitchen': 'Kitchen',
     'page.kitchenOrders': 'Kitchen Orders',
     'cook.activeOrders': 'Active Orders',
     'cook.noOrders': 'No Orders in Kitchen',
@@ -251,7 +251,7 @@ const translations = {
     'filter.showingResults': 'عرض {count} من {total} طلب',
     
     // Cook Page
-    'page.cook': 'المطبخ',
+    'page.kitchen': 'المطبخ',
     'page.kitchenOrders': 'طلبات المطبخ',
     'cook.activeOrders': 'طلبات نشطة',
     'cook.noOrders': 'لا توجد طلبات في المطبخ',

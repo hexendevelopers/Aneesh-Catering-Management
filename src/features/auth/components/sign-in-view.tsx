@@ -76,7 +76,7 @@ export default function SignInViewPage() {
     switch (role) {
       case 'receptionist':
         return '/dashboard/receptionist/overview';
-      case 'cook':
+      case 'kitchen':
         return '/dashboard/cook';
       case 'manager':
         return '/dashboard/manager';
@@ -206,7 +206,7 @@ export default function SignInViewPage() {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="receptionist">Receptionist</SelectItem>
-                            <SelectItem value="cook">Cook</SelectItem>
+                            <SelectItem value="kitchen">Kitchen</SelectItem>
                             <SelectItem value="manager">Manager</SelectItem>
                             <SelectItem value="financial">Financial</SelectItem>
                           </SelectContent>
@@ -220,12 +220,6 @@ export default function SignInViewPage() {
                   </Button>
                 </form>
               </Form>
-              
-              <div className='mt-4 text-center text-sm text-muted-foreground'>
-                <p>Demo credentials:</p>
-                <p>Username: <strong>admin</strong></p>
-                <p>Password: <strong>admin</strong></p>
-              </div>
             </CardContent>
           </Card>
         </div>

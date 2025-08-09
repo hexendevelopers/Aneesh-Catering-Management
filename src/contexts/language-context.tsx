@@ -23,7 +23,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.createOrder': 'Create Order',
     'nav.allOrders': 'All Orders',
-    'nav.cook': 'Cook',
+    'nav.kitchen': 'Kitchen',
     'nav.kitchenOrders': 'Kitchen Orders',
     
     // Dashboard
@@ -31,7 +31,7 @@ const translations = {
     'dashboard.totalRevenue': 'Total Revenue',
     'dashboard.totalCustomers': 'Total Customers',
     'dashboard.balanceToPayCustomer': 'Balance to Pay Customer',
-    'dashboard.pendingCooking': 'Pending Cooking',
+    'dashboard.pendingKitchen': 'Pending Kitchen',
     'dashboard.recentOrders': 'Recent Orders',
     'dashboard.quickStats': 'Quick Stats',
     'dashboard.todayOverview': 'Today\'s overview',
@@ -60,15 +60,17 @@ const translations = {
     'dashboard.clear': 'Clear',
     'dashboard.allClear': 'All Clear',
     'dashboard.todayOrders': 'Today Orders',
-    'dashboard.cookedOrders': 'Cooked Orders',
+    'dashboard.kitchenOrders': 'Kitchen Orders',
     'dashboard.completedOrders': 'Completed Orders',
-    'dashboard.tomorrowOrders': 'Tomorrow Orders',
+    'dashboard.upcomingOrders': 'Upcoming Orders',
     'dashboard.ordersForToday': 'Orders for today',
-    'dashboard.currentlyCooking': 'Currently cooking',
+    'dashboard.currentlyInKitchen': 'Currently in kitchen',
     'dashboard.deliveredToday': 'Delivered today',
-    'dashboard.ordersForTomorrow': 'Orders for tomorrow',
+    'dashboard.ordersForUpcoming': 'Upcoming orders',
     'dashboard.ordersScheduledForToday': 'Orders scheduled for today',
-    'dashboard.ordersScheduledForTomorrow': 'Orders scheduled for tomorrow',
+    'dashboard.ordersScheduledForUpcoming': 'Orders scheduled for upcoming dates',
+    'button.downloadPDF': 'Download PDF',
+    'message.noOrdersForUpcoming': 'No upcoming orders found',
     
     // Create Order Page
     'page.createOrder': 'Create Order',
@@ -84,7 +86,7 @@ const translations = {
     'section.ordersManagement': 'Orders Management',
     'section.filters': 'Filters',
     'filter.paymentStatus': 'Payment Status',
-    'filter.cookStatus': 'Cook Status',
+    'filter.kitchenStatus': 'Kitchen Status',
     'filter.allStatus': 'All Status',
     'filter.clearFilters': 'Clear Filters',
     'filter.showingResults': 'Showing {count} of {total} orders',
@@ -95,8 +97,8 @@ const translations = {
     'filter.thisWeek': 'This Week',
     'filter.thisMonth': 'This Month',
     
-    // Cook Page
-    'page.cook': 'Cook',
+    // Kitchen Page
+    'page.kitchen': 'Kitchen',
     'page.kitchenOrders': 'Kitchen Orders',
     'cook.activeOrders': 'Active Orders',
     'cook.noOrders': 'No Orders in Kitchen',
@@ -335,13 +337,15 @@ const translations = {
     'dashboard.todayOrders': 'طلبات اليوم',
     'dashboard.cookedOrders': 'الطلبات المطبوخة',
     'dashboard.completedOrders': 'الطلبات المكتملة',
-    'dashboard.tomorrowOrders': 'طلبات الغد',
+    'dashboard.upcomingOrders': 'الطلبات القادمة',
     'dashboard.ordersForToday': 'طلبات اليوم',
     'dashboard.currentlyCooking': 'قيد الطبخ حالياً',
     'dashboard.deliveredToday': 'تم التسليم اليوم',
-    'dashboard.ordersForTomorrow': 'طلبات الغد',
+    'dashboard.ordersForUpcoming': 'الطلبات القادمة',
     'dashboard.ordersScheduledForToday': 'الطلبات المجدولة لليوم',
-    'dashboard.ordersScheduledForTomorrow': 'الطلبات المجدولة للغد',
+    'dashboard.ordersScheduledForUpcoming': 'الطلبات المجدولة للتواريخ القادمة',
+    'button.downloadPDF': 'تحميل PDF',
+    'message.noOrdersForUpcoming': 'لا توجد طلبات قادمة',
     
     // Create Order Page
     'page.createOrder': 'إنشاء طلب',
@@ -369,7 +373,7 @@ const translations = {
     'filter.thisMonth': 'هذا الشهر',
     
     // Cook Page
-    'page.cook': 'المطبخ',
+    'page.kitchen': 'المطبخ',
     'page.kitchenOrders': 'طلبات المطبخ',
     'cook.activeOrders': 'طلبات نشطة',
     'cook.noOrders': 'لا توجد طلبات في المطبخ',

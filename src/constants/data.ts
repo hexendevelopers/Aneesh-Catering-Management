@@ -46,13 +46,14 @@ export const getNavItems = (role?: string): NavItem[] => {
       ];
 
     case 'cook':
+    case 'kitchen':
       return [
         {
-          title: 'Cook',
+          title: 'Kitchen',
           url: '/dashboard/cook',
           icon: 'chef',
           isActive: false,
-          shortcut: ['c', 'o'],
+          shortcut: ['k', 'i'],
           items: []
         }
       ];

@@ -114,7 +114,7 @@ export default function CookPage() {
   return (
     <div className="flex-1 space-y-4 p-2 sm:p-4 md:p-8 pt-4 md:pt-6">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('page.cook')}</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('page.kitchen')}</h2>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
             <IconRefresh className="mr-2 h-4 w-4" />

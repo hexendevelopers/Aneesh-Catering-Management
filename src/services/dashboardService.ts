@@ -5,7 +5,7 @@ export interface DashboardKPIs {
   todayOrders: number;
   cookedOrders: number;
   completedOrders: number;
-  tomorrowOrders: number;
+  upcomingOrders: number;
 }
 
 export interface OrderWithStatus extends OrderData {
@@ -26,6 +26,15 @@ export const dashboardService = {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
+  },
+
+  // Check if a date is in the future (tomorrow or later)
+  isUpcomingDate(dateString: string): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const orderDate = new Date(dateString);
+    orderDate.setHours(0, 0, 0, 0);
+    return orderDate > today;
   },
 
   // Calculate time ago from timestamp
@@ -52,7 +61,7 @@ export const dashboardService = {
       const tomorrow = this.getTomorrowDate();
 
       const todayOrders = allOrders.filter(order => order.date === today);
-      const tomorrowOrders = allOrders.filter(order => order.date === tomorrow);
+      const upcomingOrders = allOrders.filter(order => this.isUpcomingDate(order.date));
       
       const cookedOrders = allOrders.filter(order => 
         order.cookStatus === 'preparing' || order.cookStatus === 'ready'
@@ -66,7 +75,7 @@ export const dashboardService = {
         todayOrders: todayOrders.length,
         cookedOrders: cookedOrders.length,
         completedOrders: completedOrders.length,
-        tomorrowOrders: tomorrowOrders.length
+        upcomingOrders: upcomingOrders.length
       };
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -75,7 +84,7 @@ export const dashboardService = {
         todayOrders: 0,
         cookedOrders: 0,
         completedOrders: 0,
-        tomorrowOrders: 0
+        upcomingOrders: 0
       };
     }
   },
@@ -107,14 +116,13 @@ export const dashboardService = {
     }
   },
 
-  // Get tomorrow's orders
-  async getTomorrowOrders(): Promise<OrderWithStatus[]> {
+  // Get upcoming orders (tomorrow and beyond)
+  async getUpcomingOrders(): Promise<OrderWithStatus[]> {
     try {
       const allOrders = await orderService.getAllOrders();
-      const tomorrow = this.getTomorrowDate();
       
       return allOrders
-        .filter(order => order.date === tomorrow && order.orderId)
+        .filter(order => this.isUpcomingDate(order.date) && order.orderId)
         .map(order => ({
           ...order,
           orderId: order.orderId!,
@@ -122,14 +130,20 @@ export const dashboardService = {
           timeAgo: order.createdAt ? this.getTimeAgo(order.createdAt) : 'Unknown'
         }))
         .sort((a, b) => {
-          // Sort by creation time, newest first
+          // Sort by date first, then by creation time
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          if (dateA !== dateB) {
+            return dateA - dateB; // Earlier dates first
+          }
+          // If dates are the same, sort by creation time, newest first
           const timeA = new Date(a.createdAt || '').getTime();
           const timeB = new Date(b.createdAt || '').getTime();
           return timeB - timeA;
         });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error fetching tomorrow orders:', error);
+      console.error('Error fetching upcoming orders:', error);
       return [];
     }
   },

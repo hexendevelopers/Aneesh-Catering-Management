@@ -1,5 +1,5 @@
 'use client';
-import { navItems } from '@/constants/data';
+import { getNavItems } from '@/constants/data';
 import {
   KBarAnimator,
   KBarPortal,
@@ -8,15 +8,32 @@ import {
   KBarSearch
 } from 'kbar';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import RenderResults from './render-result';
 import useThemeSwitching from './use-theme-switching';
 
 export default function KBar({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    // Get user role from localStorage
+    const authData = localStorage.getItem('auth_token');
+    if (authData) {
+      try {
+        const { role } = JSON.parse(authData);
+        setUserRole(role);
+      } catch (error) {
+        console.error('Error parsing auth data:', error);
+      }
+    }
+  }, []);
 
   // These action are for the navigation
   const actions = useMemo(() => {
+    // Get navigation items based on user role
+    const navItems = getNavItems(userRole);
+    
     // Define navigateTo inside the useMemo callback to avoid dependency array issues
     const navigateTo = (url: string) => {
       router.push(url);
@@ -52,7 +69,7 @@ export default function KBar({ children }: { children: React.ReactNode }) {
       // Return only valid actions (ignoring null base actions for containers)
       return baseAction ? [baseAction, ...childActions] : childActions;
     });
-  }, [router]);
+  }, [router, userRole]);
 
   return (
     <KBarProvider actions={actions}>

@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { IconClipboardList, IconClock, IconCircleCheck, IconCalendar, IconPlus } from '@tabler/icons-react';
+import { IconClipboardList, IconClock, IconCircleCheck, IconCalendar, IconPlus, IconDownload } from '@tabler/icons-react';
 import { dashboardService, DashboardKPIs, OrderWithStatus } from '@/services/dashboardService';
+import { downloadOrdersPDF } from '@/lib/pdf-utils';
 import { useLanguage } from '@/contexts/language-context';
 import Link from 'next/link';
 
@@ -14,10 +15,10 @@ export default function ReceptionistOverviewPage() {
     todayOrders: 0,
     cookedOrders: 0,
     completedOrders: 0,
-    tomorrowOrders: 0
+    upcomingOrders: 0
   });
   const [todayOrders, setTodayOrders] = useState<OrderWithStatus[]>([]);
-  const [tomorrowOrders, setTomorrowOrders] = useState<OrderWithStatus[]>([]);
+  const [upcomingOrders, setUpcomingOrders] = useState<OrderWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   
   const { t, language } = useLanguage();
@@ -26,15 +27,15 @@ export default function ReceptionistOverviewPage() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [kpisData, todayData, tomorrowData] = await Promise.all([
+        const [kpisData, todayData, upcomingData] = await Promise.all([
           dashboardService.getDashboardKPIs(),
           dashboardService.getTodayOrders(),
-          dashboardService.getTomorrowOrders()
+          dashboardService.getUpcomingOrders()
         ]);
         
         setKpis(kpisData);
         setTodayOrders(todayData);
-        setTomorrowOrders(tomorrowData);
+        setUpcomingOrders(upcomingData);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error fetching dashboard data:', error);
@@ -73,9 +74,9 @@ export default function ReceptionistOverviewPage() {
       color: 'text-green-600'
     },
     {
-      title: t('dashboard.tomorrowOrders'),
-      value: kpis.tomorrowOrders.toString(),
-      description: t('dashboard.ordersForTomorrow'),
+      title: t('dashboard.upcomingOrders'),
+      value: kpis.upcomingOrders.toString(),
+      description: t('dashboard.ordersForUpcoming'),
       icon: IconCalendar,
       color: 'text-purple-600'
     }
@@ -101,6 +102,32 @@ export default function ReceptionistOverviewPage() {
         minimumFractionDigits: 3,
         maximumFractionDigits: 3
       }).format(num);
+    }
+  };
+
+  const handleDownloadTodayOrders = () => {
+    try {
+      downloadOrdersPDF({
+        title: t('dashboard.todayOrders'),
+        orders: todayOrders,
+        language
+      });
+    } catch (error) {
+      console.error('Error downloading today orders PDF:', error);
+      alert('Failed to generate PDF. Please try again later.');
+    }
+  };
+
+  const handleDownloadUpcomingOrders = () => {
+    try {
+      downloadOrdersPDF({
+        title: t('dashboard.upcomingOrders'),
+        orders: upcomingOrders,
+        language
+      });
+    } catch (error) {
+      console.error('Error downloading upcoming orders PDF:', error);
+      alert('Failed to generate PDF. Please try again later.');
     }
   };
 
@@ -151,15 +178,28 @@ export default function ReceptionistOverviewPage() {
         ))}
       </div>
 
-      {/* Today and Tomorrow Orders */}
+      {/* Today and Upcoming Orders */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Today Orders */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.todayOrders')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.ordersScheduledForToday')}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('dashboard.todayOrders')}</CardTitle>
+                <CardDescription>
+                  {t('dashboard.ordersScheduledForToday')}
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDownloadTodayOrders}
+                disabled={todayOrders.length === 0}
+              >
+                <IconDownload className="mr-2 h-4 w-4" />
+                {t('button.downloadPDF')}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {todayOrders.length === 0 ? (
@@ -193,23 +233,36 @@ export default function ReceptionistOverviewPage() {
           </CardContent>
         </Card>
 
-        {/* Tomorrow Orders */}
+        {/* Upcoming Orders */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.tomorrowOrders')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.ordersScheduledForTomorrow')}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>{t('dashboard.upcomingOrders')}</CardTitle>
+                <CardDescription>
+                  {t('dashboard.ordersScheduledForUpcoming')}
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDownloadUpcomingOrders}
+                disabled={upcomingOrders.length === 0}
+              >
+                <IconDownload className="mr-2 h-4 w-4" />
+                {t('button.downloadPDF')}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            {tomorrowOrders.length === 0 ? (
+            {upcomingOrders.length === 0 ? (
               <div className="text-center py-8">
                 <IconCalendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">{t('message.noOrdersForTomorrow')}</p>
+                <p className="text-muted-foreground">{t('message.noOrdersForUpcoming')}</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {tomorrowOrders.map((order) => (
+                {upcomingOrders.map((order) => (
                   <div key={order.orderId} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="space-y-1">
                       <p className="text-sm font-medium leading-none">
