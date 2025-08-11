@@ -1,27 +1,28 @@
 import jsPDF from 'jspdf';
 import { containsArabic, getTextDirection, hasArabicFonts, getAvailableArabicFont } from './arabic-fonts';
 
-interface OrderWithStatus {
+export interface OrderWithStatus {
   receiptNo?: string;
   orderId?: string;
   name?: string;
   orderDetails?: string;
   phoneNumber?: string;
-  deliveryType?: string;
+  deliveryType?: 'Delivery' | 'Pickup' | string;
   date?: string;
   time?: string;
-  status?: string;
+  status?: 'completed' | 'pending' | 'cancelled' | string;
   totalPayment?: string;
+  totalAmount?: number; // Added for compatibility with existing components
   advancePayment?: string;
   balancePayment?: string;
   discount?: string;
   location?: string;
-  paymentType?: 'cash' | 'atm' | 'transfer';
-  cookStatus?: 'pending' | 'preparing' | 'ready' | 'delivered';
+  paymentType?: 'cash' | 'atm' | 'transfer' | string;
+  cookStatus?: 'pending' | 'preparing' | 'ready' | 'delivered' | string;
   address?: string;
 }
 
-interface PDFOptions {
+export interface PDFOptions {
   title: string;
   orders: OrderWithStatus[];
   language: 'ar' | 'en';
@@ -73,10 +74,13 @@ const getEnglishText = (): Record<string, string> => {
 };
 
 export const generateOrdersPDF = ({ 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   title, 
   orders, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   language = 'en', 
   showSummary = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   logoUrl 
 }: PDFOptions): jsPDF => {
   // Create new PDF document with UTF-8 support
@@ -97,16 +101,23 @@ export const generateOrdersPDF = ({
           const fontFileName = `${arabicFont.name}-Regular.ttf`;
           doc.addFileToVFS(fontFileName, arabicFont.base64);
           doc.addFont(fontFileName, arabicFont.name, 'normal');
+          // eslint-disable-next-line no-console
           console.log(`✅ Arabic font '${arabicFont.name}' loaded successfully`);
         }
       } else {
+        // eslint-disable-next-line no-console
         console.warn('⚠️ No Arabic fonts available. Arabic text will not render properly.');
+        // eslint-disable-next-line no-console
         console.warn('💡 To fix this:');
+        // eslint-disable-next-line no-console
         console.warn('   1. Download Amiri font from: https://github.com/alif-type/amiri/releases');
+        // eslint-disable-next-line no-console
         console.warn('   2. Convert using: node scripts/convert-font-to-base64.js fonts/Amiri-Regular.ttf');
+        // eslint-disable-next-line no-console
         console.warn('   3. Update src/lib/arabic-fonts.ts with the base64 string');
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('❌ Failed to initialize Arabic fonts:', error);
     }
   };
@@ -138,7 +149,8 @@ export const generateOrdersPDF = ({
   };
 
   let currentY = config.margin;
-  let currentPageNumber = 1;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let currentPageNumber = 1;
 
   // Helper function to add a new page if needed
   const checkAndAddPage = (requiredHeight: number): boolean => {
@@ -235,6 +247,7 @@ export const generateOrdersPDF = ({
         try {
           doc.text(finalText, adjustedX, y, { align: adjustedAlign });
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.warn('Arabic text rendering failed:', error);
           // Fallback: use simple text without special options
           doc.text(finalText, adjustedX, y);
@@ -256,12 +269,14 @@ export const generateOrdersPDF = ({
         try {
           doc.text(finalText, x, y, { align });
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.warn('Text rendering failed:', error);
           // Fallback: use simple text without special options
           doc.text(finalText, x, y);
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Font setting failed, using default');
       doc.setFont('helvetica', fontStyle);
       setColor(color, 'text');
@@ -346,7 +361,7 @@ export const generateOrdersPDF = ({
       doc.setLineWidth(0.3);
       
       // Draw vertical lines and headers
-      columns.forEach((col, index) => {
+      columns.forEach((col) => {
         // Vertical line
         doc.line(x, startY - 2, x, startY + headerHeight - 2);
         
@@ -458,6 +473,7 @@ export const generateOrdersPDF = ({
   };
 
   // Summary section (disabled by default)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addSummary = () => {
     if (!showSummary || orders.length === 0) return;
 
@@ -538,6 +554,7 @@ export const generateOrdersPDF = ({
   };
 
   // Footer with page numbers
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addFooter = () => {
     const totalPages = doc.getNumberOfPages();
     
@@ -572,10 +589,13 @@ export const generateOrdersPDF = ({
 };
 
 export const downloadOrdersPDF = ({ 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   title, 
   orders, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   language = 'en', 
   showSummary = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   logoUrl 
 }: PDFOptions): void => {
   try {
@@ -592,6 +612,7 @@ export const downloadOrdersPDF = ({
     
     doc.save(fileName);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error generating PDF:', error);
     throw new Error(
       `Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -601,8 +622,10 @@ export const downloadOrdersPDF = ({
 
 // Utility function to preview PDF (returns base64 data URL)
 export const previewOrdersPDF = ({ 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   title, 
   orders, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   language = 'en', 
   showSummary = false 
 }: Omit<PDFOptions, 'logoUrl'>): string => {
@@ -632,9 +655,10 @@ export const generateOrderReceiptPDF = async (order: OrderWithStatus): Promise<j
           doc.addFont(fontFileName, arabicFont.name, 'normal');
         }
       }
-    } catch (error) {
-      console.error('❌ Failed to initialize Arabic fonts:', error);
-    }
+          } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('❌ Failed to initialize Arabic fonts:', error);
+      }
   };
 
   // Initialize fonts
@@ -717,6 +741,7 @@ export const generateOrderReceiptPDF = async (order: OrderWithStatus): Promise<j
         doc.text(finalText, x, y, { align });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Font setting failed, using default');
       doc.setFont('helvetica', fontStyle);
       doc.setTextColor(color[0], color[1], color[2]);
@@ -744,6 +769,7 @@ export const generateOrderReceiptPDF = async (order: OrderWithStatus): Promise<j
     currentY += imgHeight + 15; // Reduced space after image
     
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.warn('Failed to load header image, using text fallback:', error);
     // Fallback to text header if image fails
     addText('RECEIPT', pageWidth / 2, currentY, {
@@ -921,6 +947,7 @@ export const downloadOrderReceipt = async (order: OrderWithStatus): Promise<void
     
     doc.save(fileName);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error generating receipt PDF:', error);
     throw new Error(
       `Failed to generate receipt PDF: ${error instanceof Error ? error.message : 'Unknown error'}`

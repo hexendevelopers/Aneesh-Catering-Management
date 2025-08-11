@@ -245,7 +245,7 @@ export default function AllOrdersPage() {
   }, [applyFilters]);
 
   // Export to PDF function
-  const exportToPDF = (data: ExtendedOrderData[], filename: string) => {
+  const exportToPDF = (data: ExtendedOrderData[]) => {
     // Create a new window for PDF generation
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -369,8 +369,7 @@ export default function AllOrdersPage() {
       return;
     }
 
-    const filename = `almakarem_orders_${data.startDate}_to_${data.endDate}`;
-    exportToPDF(filteredData, filename);
+    exportToPDF(filteredData);
     toast.success(`Generated ${filteredData.length} orders report as PDF`);
     setIsExportDialogOpen(false);
   };

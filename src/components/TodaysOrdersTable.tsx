@@ -4,15 +4,12 @@ import { DownloadReceiptButton, DownloadReceiptIconButton } from './DownloadRece
 
 interface TodaysOrdersTableProps {
   orders: OrderWithStatus[];
-  language?: 'ar' | 'en';
 }
 
 export const TodaysOrdersTable: React.FC<TodaysOrdersTableProps> = ({
-  orders,
-  language = 'en'
+  orders
 }) => {
   // Only show English text and buttons regardless of language setting
-  const isEnglish = true; // Force English for receipt functionality
 
   if (orders.length === 0) {
     return (
@@ -116,8 +113,7 @@ export const TodaysOrdersTable: React.FC<TodaysOrdersTableProps> = ({
 
 // Alternative compact version with icon buttons
 export const TodaysOrdersCompactTable: React.FC<TodaysOrdersTableProps> = ({
-  orders,
-  language = 'en'
+  orders
 }) => {
   if (orders.length === 0) {
     return (

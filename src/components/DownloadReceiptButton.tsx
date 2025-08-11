@@ -20,6 +20,7 @@ export const DownloadReceiptButton: React.FC<DownloadReceiptButtonProps> = ({
     try {
       downloadOrderReceipt(order);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to download receipt:', error);
       // You can add a toast notification here if you have one
       alert('Failed to download receipt. Please try again.');
@@ -51,6 +52,7 @@ export const DownloadReceiptIconButton: React.FC<DownloadReceiptButtonProps> = (
     try {
       downloadOrderReceipt(order);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to download receipt:', error);
       alert('Failed to download receipt. Please try again.');
     }

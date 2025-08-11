@@ -24,6 +24,7 @@ export default function KBar({ children }: { children: React.ReactNode }) {
         const { role } = JSON.parse(authData);
         setUserRole(role);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error parsing auth data:', error);
       }
     }

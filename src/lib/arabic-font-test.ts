@@ -19,10 +19,12 @@ export const testArabicDetection = () => {
     '123456789'
   ];
 
+  // eslint-disable-next-line no-console
   console.log('🔍 Testing Arabic text detection:');
   testTexts.forEach(text => {
     const isArabic = containsArabic(text);
     const direction = getTextDirection(text);
+    // eslint-disable-next-line no-console
     console.log(`"${text}" -> Arabic: ${isArabic}, Direction: ${direction}`);
   });
 };
@@ -40,9 +42,11 @@ export const testArabicPDF = (fontBase64?: string): jsPDF => {
     try {
       doc.addFileToVFS('Amiri-Regular.ttf', fontBase64);
       doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
-      console.log('✅ Arabic font loaded successfully');
+              // eslint-disable-next-line no-console
+        console.log('✅ Arabic font loaded successfully');
     } catch (error) {
-      console.warn('⚠️ Failed to load Arabic font:', error);
+              // eslint-disable-next-line no-console
+        console.warn('⚠️ Failed to load Arabic font:', error);
     }
   }
 
@@ -66,7 +70,8 @@ export const testArabicPDF = (fontBase64?: string): jsPDF => {
           doc.setFont('Amiri', 'normal');
         } catch (error) {
           doc.setFont('helvetica', 'normal');
-          console.warn(`⚠️ Fallback to helvetica for: ${text}`);
+          // eslint-disable-next-line no-console
+        console.warn(`⚠️ Fallback to helvetica for: ${text}`);
         }
       } else {
         doc.setFont('helvetica', 'normal');
@@ -84,7 +89,8 @@ export const testArabicPDF = (fontBase64?: string): jsPDF => {
       y += size * 0.6; // Adjust line height
       
     } catch (error) {
-      console.error(`❌ Error rendering text "${text}":`, error);
+              // eslint-disable-next-line no-console
+        console.error(`❌ Error rendering text "${text}":`, error);
       y += 10; // Move to next line even if text fails
     }
   });
@@ -114,21 +120,26 @@ export const testArabicPDF = (fontBase64?: string): jsPDF => {
 
 // Quick test function
 export const quickTest = () => {
+  // eslint-disable-next-line no-console
   console.log('🧪 Running Arabic font tests...');
   testArabicDetection();
   
   // Test PDF generation without font (will use fallbacks)
   const doc = testArabicPDF();
   
-  console.log('📄 PDF generated successfully!');
-  console.log('💡 To test with Arabic fonts, provide fontBase64 parameter');
+      // eslint-disable-next-line no-console
+    console.log('📄 PDF generated successfully!');
+    // eslint-disable-next-line no-console
+    console.log('💡 To test with Arabic fonts, provide fontBase64 parameter');
   
   return doc;
 };
 
 // Export for use in other files
-export default {
+const arabicFontTest = {
   testArabicDetection,
   testArabicPDF,
   quickTest
 };
+
+export default arabicFontTest;

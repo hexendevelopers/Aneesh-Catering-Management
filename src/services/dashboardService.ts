@@ -58,7 +58,6 @@ export const dashboardService = {
     try {
       const allOrders = await orderService.getAllOrders();
       const today = this.getTodayDate();
-      const tomorrow = this.getTomorrowDate();
 
       const todayOrders = allOrders.filter(order => order.date === today);
       const upcomingOrders = allOrders.filter(order => this.isUpcomingDate(order.date));

@@ -113,6 +113,7 @@ export default function ReceptionistOverviewPage() {
         language
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error downloading today orders PDF:', error);
       alert('Failed to generate PDF. Please try again later.');
     }
@@ -122,6 +123,7 @@ export default function ReceptionistOverviewPage() {
     try {
       await downloadOrderReceipt(order);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error downloading receipt:', error);
       alert('Failed to download receipt. Please try again later.');
     }
