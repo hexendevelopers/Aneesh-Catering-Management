@@ -29,6 +29,7 @@ interface ReceiptGenerationRequest {
   language: 'ar' | 'en';
   logoUrl?: string;
   useDefaultLogo?: boolean;
+  autoPrint?: boolean;
 }
 
 // Function to load default logo as base64
@@ -121,7 +122,13 @@ const getEnglishTranslations = (): Record<string, string> => ({
 
 // Generate HTML content for receipt
 const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
-  const { order, language, logoUrl, useDefaultLogo = true } = options;
+  const {
+    order,
+    language,
+    logoUrl,
+    useDefaultLogo = true,
+    autoPrint = false
+  } = options;
   const isArabic = language === 'ar';
   const translations = isArabic
     ? getArabicTranslations()
@@ -179,7 +186,78 @@ const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
     };
     return paymentMap[paymentType.toLowerCase()] || paymentType;
   };
+  const autoPrintScript = autoPrint
+    ? `
+  <script>
+    // Wait for page to fully load including fonts and images
+    window.addEventListener('load', function() {
+      // Additional delay to ensure everything is rendered
+      setTimeout(function() {
+        // Check if we're in a browser environment (not headless)
+        if (typeof window !== 'undefined' && window.print) {
+          try {
+            // Trigger the browser's print dialog
+            window.print();
+          } catch (error) {
+            console.warn('Auto-print failed:', error);
+            
+            // Fallback: Add a visible print button if auto-print fails
+            const printButton = document.createElement('button');
+            printButton.innerHTML = '${isArabic ? 'طباعة / حفظ كـ PDF' : 'Print / Save as PDF'}';
+            printButton.style.cssText = \`
+              position: fixed;
+              top: 20px;
+              right: 20px;
+              z-index: 9999;
+              background: #2563eb;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: bold;
+              cursor: pointer;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+              transition: all 0.2s ease;
+            \`;
+            
+            printButton.onmouseover = function() {
+              this.style.background = '#1d4ed8';
+              this.style.transform = 'translateY(-2px)';
+            };
+            
+            printButton.onmouseout = function() {
+              this.style.background = '#2563eb';
+              this.style.transform = 'translateY(0)';
+            };
+            
+            printButton.onclick = function() {
+              window.print();
+            };
+            
+            document.body.appendChild(printButton);
+          }
+        }
+      }, 1500); // 1.5 second delay to ensure everything is loaded
+    });
 
+    // Also trigger on fonts ready (backup)
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function() {
+        setTimeout(function() {
+          if (typeof window !== 'undefined' && window.print && !document.querySelector('button')) {
+            try {
+              window.print();
+            } catch (error) {
+              console.warn('Backup auto-print failed:', error);
+            }
+          }
+        }, 1000);
+      });
+    }
+  </script>
+`
+    : '';
   return `
     <!DOCTYPE html>
     <html ${isArabic ? 'dir="rtl" lang="ar"' : 'dir="ltr" lang="en"'}>
@@ -612,7 +690,8 @@ export async function POST(req: NextRequest) {
         order,
         language,
         logoUrl,
-        useDefaultLogo
+        useDefaultLogo,
+        autoPrint: true // Enable auto-print for fallback HTML
       });
       console.log('HTML content length:', htmlContent.length);
 
