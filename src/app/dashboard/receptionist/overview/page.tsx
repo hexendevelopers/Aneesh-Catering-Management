@@ -147,7 +147,8 @@ export default function ReceptionistOverviewPage() {
         {
           orders: todayOrders,
           language: 'ar',
-          showSummary: true
+          showSummary: true,
+          autoPrint: true
         },
         {
           responseType: 'blob' // Important: Set response type to blob
@@ -249,7 +250,8 @@ export default function ReceptionistOverviewPage() {
           order: order,
           language: 'ar', // Always use Arabic for receipts
           useDefaultLogo: true, // Use the default logo from public/assets/images/invoice-header.png
-          logoUrl: undefined // You can override with a custom logo URL here
+          logoUrl: undefined, // You can override with a custom logo URL here
+          autoPrint: true
         },
         {
           responseType: 'blob'

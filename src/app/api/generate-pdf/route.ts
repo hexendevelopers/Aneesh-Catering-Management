@@ -29,6 +29,7 @@ interface PDFGenerationRequest {
   language: 'ar' | 'en';
   showSummary?: boolean;
   title?: string;
+  autoPrint?: boolean; // New parameter to control auto-print
 }
 
 // Arabic translations
@@ -99,9 +100,9 @@ const getEnglishTranslations = (): Record<string, string> => ({
   paymentType: 'Payment Type'
 });
 
-// Generate HTML content with proper Arabic support
+// Generate HTML content with proper Arabic support and auto-print functionality
 const generateHTMLContent = (options: PDFGenerationRequest): string => {
-  const { orders, language, showSummary = false } = options;
+  const { orders, language, showSummary = false, autoPrint = false } = options;
   const isArabic = language === 'ar';
   const translations = isArabic
     ? getArabicTranslations()
@@ -157,6 +158,80 @@ const generateHTMLContent = (options: PDFGenerationRequest): string => {
     };
     return statusMap[status.toLowerCase()] || status;
   };
+
+  // Auto-print script
+  const autoPrintScript = autoPrint
+    ? `
+    <script>
+      // Wait for page to fully load including fonts and images
+      window.addEventListener('load', function() {
+        // Additional delay to ensure everything is rendered
+        setTimeout(function() {
+          // Check if we're in a browser environment (not headless)
+          if (typeof window !== 'undefined' && window.print) {
+            try {
+              // Trigger the browser's print dialog
+              window.print();
+            } catch (error) {
+              console.warn('Auto-print failed:', error);
+              
+              // Fallback: Add a visible print button if auto-print fails
+              const printButton = document.createElement('button');
+              printButton.innerHTML = '${isArabic ? 'طباعة / حفظ كـ PDF' : 'Print / Save as PDF'}';
+              printButton.style.cssText = \`
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                background: #2563eb;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                transition: all 0.2s ease;
+              \`;
+              
+              printButton.onmouseover = function() {
+                this.style.background = '#1d4ed8';
+                this.style.transform = 'translateY(-2px)';
+              };
+              
+              printButton.onmouseout = function() {
+                this.style.background = '#2563eb';
+                this.style.transform = 'translateY(0)';
+              };
+              
+              printButton.onclick = function() {
+                window.print();
+              };
+              
+              document.body.appendChild(printButton);
+            }
+          }
+        }, 1500); // 1.5 second delay to ensure everything is loaded
+      });
+
+      // Also trigger on fonts ready (backup)
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function() {
+          setTimeout(function() {
+            if (typeof window !== 'undefined' && window.print && !document.querySelector('button')) {
+              try {
+                window.print();
+              } catch (error) {
+                console.warn('Backup auto-print failed:', error);
+              }
+            }
+          }, 1000);
+        });
+      }
+    </script>
+  `
+    : '';
 
   return `
     <!DOCTYPE html>
@@ -409,6 +484,11 @@ const generateHTMLContent = (options: PDFGenerationRequest): string => {
             break-inside: avoid;
             page-break-inside: avoid;
           }
+          
+          /* Hide any print buttons when actually printing */
+          button {
+            display: none !important;
+          }
         }
         
         /* Arabic text enhancements */
@@ -431,6 +511,7 @@ const generateHTMLContent = (options: PDFGenerationRequest): string => {
             : ''
         }
       </style>
+      ${autoPrintScript}
     </head>
     <body>
       <div class="container">
@@ -489,8 +570,6 @@ const generateHTMLContent = (options: PDFGenerationRequest): string => {
                       <div class="detail-label">${translations.time}</div>
                       <div class="detail-value">${order.time || translations.na}</div>
                     </div>
-                    
-           
                   </div>
                   
                   ${
@@ -524,17 +603,11 @@ const generateHTMLContent = (options: PDFGenerationRequest): string => {
                 <div class="summary-label">${translations.totalOrders}</div>
                 <div class="summary-value">${totalOrders}</div>
               </div>
-              
-              
             </div>
-            
-
+          </div>
         `
             : ''
         }
-        
-        <!-- Footer -->
-      
       </div>
     </body>
     </html>
@@ -599,12 +672,13 @@ export async function POST(req: NextRequest) {
         deviceScaleFactor: 2
       });
 
-      // Generate HTML content
+      // Generate HTML content with auto-print enabled for fallback
       console.log('Generating HTML content...');
       const htmlContent = generateHTMLContent({
         orders,
         language,
-        showSummary
+        showSummary,
+        autoPrint: true // Enable auto-print for fallback HTML
       });
       console.log('HTML content length:', htmlContent.length);
 
@@ -677,13 +751,14 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error generating PDF:', error);
 
-    // Try to provide a fallback HTML response
+    // Try to provide a fallback HTML response with auto-print
     try {
-      console.log('Attempting fallback HTML response...');
+      console.log('Attempting fallback HTML response with auto-print...');
       const fallbackHTML = generateHTMLContent({
         orders: orders || [],
         language: language || 'ar',
-        showSummary: showSummary || false
+        showSummary: showSummary || false,
+        autoPrint: true // Enable auto-print for fallback
       });
 
       return new NextResponse(fallbackHTML, {
