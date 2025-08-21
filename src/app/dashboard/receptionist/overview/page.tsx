@@ -187,11 +187,11 @@ export default function ReceptionistOverviewPage() {
         window.open(url, '_blank');
 
         // Show info message
-        if (language === 'ar') {
-          alert('تم إنشاء ملف HTML كبديل. يرجى طباعته كـ PDF.');
-        } else {
-          alert('HTML file generated as fallback. Please print it as PDF.');
-        }
+        // if (language === 'ar') {
+        //   alert('تم إنشاء ملف HTML كبديل. يرجى طباعته كـ PDF.');
+        // } else {
+        //   alert('HTML file generated as fallback. Please print it as PDF.');
+        // }
       } else {
         throw new Error('Unexpected response type');
       }
@@ -294,7 +294,7 @@ export default function ReceptionistOverviewPage() {
           language === 'ar'
             ? 'تم إنشاء ملف HTML كبديل. يرجى طباعته كـ PDF.'
             : 'HTML file generated as fallback. Please print it as PDF.';
-        alert(infoMessage);
+        // alert(infoMessage);
       } else {
         throw new Error('Unexpected response type');
       }
