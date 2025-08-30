@@ -75,6 +75,8 @@ const translations = {
     // Create Order Page
     'page.createOrder': 'Create Order',
     'page.createOrderDescription': 'Fill in the details to create a new order',
+    'page.editOrder': 'Edit Order',
+    'page.editOrderDescription': 'Edit the order details below',
     'section.orderInformation': 'Order Information',
     'section.customerInformation': 'Customer Information',
     'section.orderDetails': 'Order Details',
@@ -351,6 +353,8 @@ const translations = {
     // Create Order Page
     'page.createOrder': 'إنشاء طلب',
     'page.createOrderDescription': 'املأ التفاصيل لإنشاء طلب جديد',
+    'page.editOrder': 'تعديل الطلب',
+    'page.editOrderDescription': 'قم بتعديل تفاصيل الطلب أدناه',
     'section.orderInformation': 'معلومات الطلب',
     'section.customerInformation': 'معلومات العميل',
     'section.orderDetails': 'تفاصيل الطلب',

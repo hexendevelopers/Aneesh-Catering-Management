@@ -42,8 +42,12 @@ export default function CreateOrderPage() {
     time: z.string().min(1, t('validation.timeRequired')),
     phoneNumber: z.string().min(1, t('validation.phoneRequired')),
     orderDetails: z.string().min(1, t('validation.orderDetailsRequired')),
-    totalPayment: z.string().min(1, t('validation.totalPaymentRequired')),
-    advancePayment: z.string().min(1, t('validation.advancePaymentRequired')),
+    totalPayment: z.string().min(1, t('validation.totalPaymentRequired')).refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: t('validation.totalPaymentInvalid') || 'Total payment must be a valid positive number'
+    }),
+    advancePayment: z.string().min(1, t('validation.advancePaymentRequired')).refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: t('validation.advancePaymentInvalid') || 'Advance payment must be a valid number'
+    }),
     location: z.string().min(1, t('validation.locationRequired')),
     paymentType: z.enum(['cash', 'atm', 'transfer'], {
       required_error: t('validation.paymentTypeRequired')
@@ -73,22 +77,34 @@ export default function CreateOrderPage() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
+      // Validate payment amounts
+      const totalPayment = Number(data.totalPayment);
+      const advancePayment = Number(data.advancePayment);
+      
+      if (advancePayment > totalPayment) {
+        toast.error(t('message.advanceExceedsTotal') || 'Advance payment cannot exceed total payment');
+        return;
+      }
+
       // Prepare order data with automatic cook sharing
-      const orderData = {
+      const orderData: OrderData = {
         ...data,
+        totalPayment: totalPayment.toString(),
+        advancePayment: advancePayment.toString(),
         sharedToCook: true, // Automatically share with cook
         cookStatus: 'pending' as const,
-        status: 'unpaid' as const
-      } as OrderData;
+        status: 'unpaid' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
       // Save order to Firebase Realtime Database
       const orderId = await orderService.createOrder(orderData);
       
-      // eslint-disable-next-line no-console
       console.log('Order created with ID:', orderId);
       
       // Show success message
-      toast.success(t('message.orderCreated'), {
+      toast.success(t('message.orderCreated') || 'Order created successfully!', {
         description: `Order ID: ${orderId} - Shared with kitchen`,
         duration: 5000,
       });
@@ -109,11 +125,10 @@ export default function CreateOrderPage() {
       });
       
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error creating order:', error);
       
       // Show error message
-      toast.error(t('message.orderError'), {
+      toast.error(t('message.orderError') || 'Error creating order', {
         description: error instanceof Error ? error.message : 'Unknown error occurred',
         duration: 5000,
       });
@@ -128,7 +143,7 @@ export default function CreateOrderPage() {
         {/* Page Header */}
         <div className='flex items-center justify-start'>
           <h1 className='text-2xl sm:text-3xl font-bold tracking-tight'>
-            {t('page.createOrder')}
+            {t('page.createOrder') || 'Create Order'}
           </h1>
         </div>
 
@@ -136,7 +151,7 @@ export default function CreateOrderPage() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {t('section.orderInformation')}
+              {t('section.orderInformation') || 'Order Information'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -148,7 +163,7 @@ export default function CreateOrderPage() {
                 {/* Customer Information Section */}
                 <div className='space-y-6'>
                   <h3 className='text-lg font-medium border-b pb-2'>
-                    {t('section.customerInformation')}
+                    {t('section.customerInformation') || 'Customer Information'}
                   </h3>
                   <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Name */}
@@ -158,11 +173,11 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.customerName')}
+                            {t('field.customerName') || 'Customer Name'}
                           </FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder={t('field.customerName.placeholder')}
+                              placeholder={t('field.customerName.placeholder') || 'Enter customer name'}
                               {...field} 
                             />
                           </FormControl>
@@ -178,11 +193,11 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.phoneNumber')}
+                            {t('field.phoneNumber') || 'Phone Number'}
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={t('field.phoneNumber.placeholder')}
+                              placeholder={t('field.phoneNumber.placeholder') || 'Enter phone number'}
                               type='tel'
                               {...field}
                             />
@@ -197,13 +212,13 @@ export default function CreateOrderPage() {
                       control={form.control}
                       name='location'
                       render={({ field }) => (
-                        <FormItem className='md:col-span-2'>
+                        <FormItem className='sm:col-span-2'>
                           <FormLabel>
-                            {t('field.deliveryLocation')}
+                            {t('field.deliveryLocation') || 'Delivery Location'}
                           </FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder={t('field.deliveryLocation.placeholder')}
+                              placeholder={t('field.deliveryLocation.placeholder') || 'Enter delivery address'}
                               {...field} 
                             />
                           </FormControl>
@@ -217,7 +232,7 @@ export default function CreateOrderPage() {
                 {/* Order Details Section */}
                 <div className='space-y-6'>
                   <h3 className='text-lg font-medium border-b pb-2'>
-                    {t('section.orderDetails')}
+                    {t('section.orderDetails') || 'Order Details'}
                   </h3>
                   <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Receipt No */}
@@ -227,11 +242,11 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.receiptNumber')}
+                            {t('field.receiptNumber') || 'Receipt Number'}
                           </FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder={t('field.receiptNumber.placeholder')}
+                              placeholder={t('field.receiptNumber.placeholder') || 'Enter receipt number'}
                               {...field} 
                             />
                           </FormControl>
@@ -247,7 +262,7 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.date')}
+                            {t('field.date') || 'Date'}
                           </FormLabel>
                           <FormControl>
                             <Input 
@@ -267,7 +282,7 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.time')}
+                            {t('field.time') || 'Time'}
                           </FormLabel>
                           <FormControl>
                             <Input 
@@ -287,20 +302,20 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.deliveryType')}
+                            {t('field.deliveryType') || 'Delivery Type'}
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder={t('field.deliveryType.placeholder')} />
+                                <SelectValue placeholder={t('field.deliveryType.placeholder') || 'Select delivery type'} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value='pickup'>{t('delivery.pickup')}</SelectItem>
-                              <SelectItem value='home-delivery'>{t('delivery.homeDelivery')}</SelectItem>
+                              <SelectItem value='pickup'>{t('delivery.pickup') || 'Pickup'}</SelectItem>
+                              <SelectItem value='home-delivery'>{t('delivery.homeDelivery') || 'Home Delivery'}</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -316,11 +331,11 @@ export default function CreateOrderPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          {t('field.orderDetails')}
+                          {t('field.orderDetails') || 'Order Details'}
                         </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder={t('field.orderDetails.placeholder')}
+                            placeholder={t('field.orderDetails.placeholder') || 'Enter order details...'}
                             className='min-h-[120px] resize-none'
                             {...field}
                           />
@@ -334,7 +349,7 @@ export default function CreateOrderPage() {
                 {/* Payment Information Section */}
                 <div className='space-y-6'>
                   <h3 className='text-lg font-medium border-b pb-2'>
-                    {t('section.paymentInformation')}
+                    {t('section.paymentInformation') || 'Payment Information'}
                   </h3>
                   <div className='grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2'>
                     {/* Total Payment */}
@@ -344,13 +359,14 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.totalPayment')} (OMR)
+                            {t('field.totalPayment') || 'Total Payment'} (OMR)
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={t('field.totalPayment.placeholder')}
+                              placeholder={t('field.totalPayment.placeholder') || '0.000'}
                               type='number'
                               step='0.001'
+                              min='0'
                               {...field}
                             />
                           </FormControl>
@@ -366,13 +382,14 @@ export default function CreateOrderPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            {t('field.advancePayment')} (OMR)
+                            {t('field.advancePayment') || 'Advance Payment'} (OMR)
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={t('field.advancePayment.placeholder')}
+                              placeholder={t('field.advancePayment.placeholder') || '0.000'}
                               type='number'
                               step='0.001'
+                              min='0'
                               {...field}
                             />
                           </FormControl>
@@ -389,30 +406,30 @@ export default function CreateOrderPage() {
                     render={({ field }) => (
                       <FormItem className='space-y-3'>
                         <FormLabel>
-                          {t('field.paymentType')}
+                          {t('field.paymentType') || 'Payment Type'}
                         </FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                             className='flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-8'
                           >
                             <div className='flex items-center space-x-2'>
                               <RadioGroupItem value='cash' id='cash' />
                               <Label htmlFor='cash'>
-                                {t('payment.cash')}
+                                {t('payment.cash') || 'Cash'}
                               </Label>
                             </div>
                             <div className='flex items-center space-x-2'>
                               <RadioGroupItem value='atm' id='atm' />
                               <Label htmlFor='atm'>
-                                {t('payment.atm')}
+                                {t('payment.atm') || 'ATM'}
                               </Label>
                             </div>
                             <div className='flex items-center space-x-2'>
                               <RadioGroupItem value='transfer' id='transfer' />
                               <Label htmlFor='transfer'>
-                                {t('payment.transfer')}
+                                {t('payment.transfer') || 'Transfer'}
                               </Label>
                             </div>
                           </RadioGroup>
@@ -426,7 +443,7 @@ export default function CreateOrderPage() {
                 {/* Action Button */}
                 <div className='flex justify-start pt-6'>
                   <Button type='submit' disabled={isSubmitting} className='w-full sm:w-auto'>
-                    {isSubmitting ? t('button.creating') : t('button.createOrder')}
+                    {isSubmitting ? (t('button.creating') || 'Creating...') : (t('button.createOrder') || 'Create Order')}
                   </Button>
                 </div>
               </form>

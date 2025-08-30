@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,17 +18,21 @@ import {
   IconTruck, 
   IconCurrencyDollar, 
   IconCreditCard,
-  IconCalculator
+  IconCalculator,
+  IconEdit
 } from '@tabler/icons-react';
 import { orderService, OrderData } from '@/services/orderService';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/language-context';
 
 export default function CreateOrderPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     phoneNumber: '',
@@ -42,6 +46,38 @@ export default function CreateOrderPage() {
     paymentType: 'cash' as 'cash' | 'atm' | 'transfer',
     deliveryType: 'pickup'
   });
+
+  // Check if we're editing an existing order
+  useEffect(() => {
+    const editParam = searchParams.get('edit');
+    if (editParam) {
+      try {
+        const orderData = JSON.parse(decodeURIComponent(editParam));
+        setIsEditing(true);
+        setEditingOrderId(orderData.orderId);
+        
+        // Pre-fill the form with existing order data
+        setFormData({
+          name: orderData.name || '',
+          phoneNumber: orderData.phoneNumber || '',
+          receiptNo: orderData.receiptNo || '',
+          date: orderData.date || new Date().toISOString().split('T')[0],
+          time: orderData.time || '',
+          orderDetails: orderData.orderDetails || '',
+          totalPayment: orderData.totalPayment || '',
+          advancePayment: orderData.advancePayment || '',
+          location: orderData.location || '',
+          paymentType: orderData.paymentType || 'cash',
+          deliveryType: orderData.deliveryType || 'pickup'
+        });
+      } catch (error) {
+        console.error('Error parsing edit parameter:', error);
+        // If there's an error parsing, treat as new order
+        setIsEditing(false);
+        setEditingOrderId(null);
+      }
+    }
+  }, [searchParams]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -97,12 +133,20 @@ export default function CreateOrderPage() {
         cookStatus: 'pending'
       };
 
-      await orderService.createOrder(orderData);
-      toast.success(t('message.orderCreated'));
+      if (isEditing && editingOrderId) {
+        // Update existing order
+        await orderService.updateOrder(editingOrderId, orderData);
+        toast.success(t('message.orderUpdated') || 'Order updated successfully');
+      } else {
+        // Create new order
+        await orderService.createOrder(orderData);
+        toast.success(t('message.orderCreated'));
+      }
+      
       router.push('/dashboard/receptionist/overview');
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error creating order:', error);
+      console.error('Error saving order:', error);
       toast.error(t('message.orderError'));
     } finally {
       setLoading(false);
@@ -114,7 +158,9 @@ export default function CreateOrderPage() {
       <div className="flex items-center justify-between space-y-2">
         <div className="flex items-center space-x-2">
           <IconClipboardList className="h-8 w-8 text-blue-600" />
-          <h2 className="text-3xl font-bold tracking-tight">{t('page.createOrder')}</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {isEditing ? t('page.editOrder') || 'Edit Order' : t('page.createOrder')}
+          </h2>
         </div>
       </div>
 
@@ -125,7 +171,10 @@ export default function CreateOrderPage() {
             <CardTitle>{t('section.orderInformation')}</CardTitle>
           </div>
           <CardDescription>
-            {t('page.createOrderDescription')}
+            {isEditing 
+              ? t('page.editOrderDescription') || 'Edit the order details below'
+              : t('page.createOrderDescription')
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -350,12 +399,22 @@ export default function CreateOrderPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {t('button.creating')}
+                    {isEditing 
+                      ? (t('button.updating') || 'Updating...')
+                      : (t('button.creating') || 'Creating...')
+                    }
                   </>
                 ) : (
                   <>
-                    <IconDeviceFloppy className="mr-2 h-4 w-4" />
-                    {t('button.createOrder')}
+                    {isEditing ? (
+                      <IconEdit className="mr-2 h-4 w-4" />
+                    ) : (
+                      <IconDeviceFloppy className="mr-2 h-4 w-4" />
+                    )}
+                    {isEditing 
+                      ? (t('button.updateOrder') || 'Update Order')
+                      : t('button.createOrder')
+                    }
                   </>
                 )}
               </Button>
