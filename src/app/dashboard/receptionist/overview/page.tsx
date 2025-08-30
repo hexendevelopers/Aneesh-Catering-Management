@@ -370,11 +370,7 @@ export default function ReceptionistOverviewPage() {
         todayOrders: Math.max(0, prev.todayOrders - 1)
       }));
 
-      // Show success message
-      const successMessage = language === 'ar' 
-        ? 'تم حذف الطلب بنجاح!' 
-        : 'Order deleted successfully!';
-      alert(successMessage);
+      // Removed the success alert message
       
     } catch (error) {
       console.error('Error deleting order:', error);
