@@ -535,7 +535,7 @@ export default function ReceptionistOverviewPage() {
                             {language === 'ar' ? 'تعديل' : 'Edit'}
                           </Button>
 
-                          {/* Delete Order Button// */}
+                          {/* Delete Order Button */}
                           <Button
                             variant='outline'
                             size='sm'
