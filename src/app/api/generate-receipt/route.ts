@@ -309,10 +309,11 @@ const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
         
         .header {
           background: white;
-          color: white;
+          color: #1e293b;
           padding: 30px 20px;
           text-align: center;
           position: relative;
+          border-bottom: 2px solid #e5e7eb;
         }
         
         .logo-placeholder {
@@ -343,13 +344,23 @@ const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
         }
         
         .receipt-number {
-          background: rgba(255, 255, 255, 0.2);
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 16px;
+          background: #2563eb;
+          color: white;
+          padding: 12px 24px;
+          border-radius: 25px;
+          font-size: 18px;
           font-weight: bold;
-          margin-top: 15px;
+          margin-top: 20px;
           display: inline-block;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+          text-align: center;
+          min-width: 200px;
+          max-width: 400px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         
         .content {
@@ -468,6 +479,33 @@ const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
           button {
             display: none !important;
           }
+          
+          /* Ensure receipt number is visible in print */
+          .receipt-number {
+            background: #2563eb !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+        
+        /* Responsive design for receipt number */
+        @media (max-width: 600px) {
+          .receipt-number {
+            font-size: 16px;
+            padding: 10px 20px;
+            min-width: 180px;
+            max-width: 300px;
+          }
+        }
+        
+        @media (max-width: 400px) {
+          .receipt-number {
+            font-size: 14px;
+            padding: 8px 16px;
+            min-width: 150px;
+            max-width: 250px;
+          }
         }
         
         /* Arabic text enhancements */
@@ -503,7 +541,13 @@ const generateReceiptHTML = (options: ReceiptGenerationRequest): string => {
               ${isArabic ? 'شعار الشركة' : 'Company Logo'}
             </div>`
           }
-         
+          
+          <!-- Receipt Number Display -->
+          <div class="receipt-number" title="${order.receiptNo || order.orderId || 'N/A'}">
+            ${translations.receiptNo}: ${(order.receiptNo || order.orderId || 'N/A').length > 25 ? 
+              (order.receiptNo || order.orderId || 'N/A').substring(0, 25) + '...' : 
+              (order.receiptNo || order.orderId || 'N/A')}
+          </div>
         </div>
         
         <!-- Content -->
